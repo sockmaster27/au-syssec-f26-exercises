@@ -310,7 +310,7 @@ class PPMImage:
         file.write(self.data)
 
 
-def test():
+def final_encryption_and_decryption_test():
     """Simple test of correctness."""
     with open('dk.ppm', 'rb') as f:
         original_image = PPMImage.load_from_file(f)
@@ -323,7 +323,41 @@ def test():
         image.decrypt(key)
         assert original_image == image, f'encrypting and decrypting with {mode} mode should yield the original image'
 
+def task1():
+    """Simple test of correctness."""
+    with open('dk.ppm', 'rb') as f:
+        image = PPMImage.load_from_file(f)
+
+    key = secrets.token_bytes(16)
+    image.encrypt(key, 'ecb')
+
+    with open('ecb_encrypted.ppm', 'wb') as f:   # open the image writable in binary mode (with options 'w' and 'b')
+            image.write_to_file(f)
+    return 
+
+def task2():
+    # --------- add your code here --------
+    return 
+
+def task3():
+    # --------- add your code here --------
+    return 
+
+def task4():
+    # --------- add your code here --------
+    return 
+
+def task5():
+    # --------- add your code here --------
+    return 
 
 if __name__ == '__main__':
     # The following is executed if you run `python3 ppmcrypt.py`.
-    test()
+    task1()
+
+    # task2()
+    # task3()
+    # task4()
+    # task5()
+
+    final_encryption_and_decryption_test()
