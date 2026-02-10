@@ -72,9 +72,10 @@ class PPMImage:
             self.comments.append(b'X-mode: ecb')
         elif mode.lower() == 'cbc':
             # --------- add your code here --------
-            raise NotImplementedError(f'mode of operation {mode} not implemented')
-            # iv = ???
-            # ciphertext = ???
+            iv = secrets.token_bytes(16)
+            aes = AES.new(key, AES.MODE_CBC, iv=iv)
+            padded_plaintext = pad(self.data, 16)
+            ciphertext = aes.encrypt(padded_plaintext)
             # ----- end add your code here --------
             # replace the image data with the ciphertext
             self.data = bytearray(ciphertext)
@@ -84,9 +85,9 @@ class PPMImage:
             self.comments.append(f'X-iv: {iv.hex()}'.encode())
         elif mode.lower() == 'ctr':
             # --------- add your code here --------
-            raise NotImplementedError(f'mode of operation {mode} not implemented')
-            # nonce = ???
-            # ciphertext = ???
+            nonce = secrets.token_bytes(8)
+            aes = AES.new(key, AES.MODE_CTR, nonce=nonce)
+            ciphertext = aes.encrypt(self.data)
             # ----- end add your code here --------
             # replace the image data with the ciphertext
             self.data = bytearray(ciphertext)
@@ -96,10 +97,10 @@ class PPMImage:
             self.comments.append(f'X-nonce: {nonce.hex()}'.encode())
         elif mode.lower() == 'gcm':
             # --------- add your code here --------
-            raise NotImplementedError(f'mode of operation {mode} not implemented')
-            # nonce = ???
-            # ciphertext = ???
-            # tag = ???
+            nonce = secrets.token_bytes(8)
+            aes = AES.new(key, AES.MODE_GCM, nonce=nonce)
+            ciphertext = aes.encrypt(self.data)
+            tag = aes.digest()
             # ----- end add your code here --------
             # replace the image data with the ciphertext
             self.data = bytearray(ciphertext)
@@ -161,8 +162,9 @@ class PPMImage:
             # Read the used IV from the comments
             iv = bytes.fromhex(find_property_in_comments('iv'))
             # --------- add your code here --------
-            raise NotImplementedError(f'mode of operation {mode} not implemented')
-            # plaintext = ???
+            aes = AES.new(key, AES.MODE_CBC, iv=iv)
+            padded_plaintext = aes.decrypt(self.data)
+            plaintext = unpad(padded_plaintext, 16)
             # ----- end add your code here --------
             # replace the image data with the plaintext
             self.data = bytearray(plaintext)
@@ -172,8 +174,8 @@ class PPMImage:
             # Read the used nonce from the comments
             nonce = bytes.fromhex(find_property_in_comments('nonce'))
             # --------- add your code here --------
-            raise NotImplementedError(f'mode of operation {mode} not implemented')
-            # plaintext = ???
+            aes = AES.new(key, AES.MODE_CTR, nonce=nonce)
+            plaintext = aes.decrypt(self.data)
             # ----- end add your code here --------
             # replace the image data with the plaintext
             self.data = bytearray(plaintext)
@@ -185,8 +187,8 @@ class PPMImage:
             # Read the authentication tag from the comments
             tag = bytes.fromhex(find_property_in_comments('tag'))
             # --------- add your code here --------
-            raise NotImplementedError(f'mode of operation {mode} not implemented')
-            # plaintext = ???
+            aes = AES.new(key, AES.MODE_GCM, nonce=nonce)
+            plaintext = aes.decrypt_and_verify(self.data, tag)
             # ----- end add your code here --------
             # replace the image data with the plaintext
             self.data = bytearray(plaintext)
@@ -327,24 +329,76 @@ def task1():
     """Simple test of correctness."""
     with open('dk.ppm', 'rb') as f:
         image = PPMImage.load_from_file(f)
-
     key = secrets.token_bytes(16)
-    image.encrypt(key, 'ecb')
-
-    with open('ecb_encrypted.ppm', 'wb') as f:   # open the image writable in binary mode (with options 'w' and 'b')
+    image.encrypt(key, 'gcm')
+    with open('gcm_encrypted.ppm', 'wb') as f:
+            image.write_to_file(f)
+    image.decrypt(key)
+    with open('gcm_decrypted.ppm', 'wb') as f:
             image.write_to_file(f)
     return 
 
 def task2():
-    # --------- add your code here --------
+    with open('dk.ppm', 'rb') as f:
+        image = PPMImage.load_from_file(f)
+    key = secrets.token_bytes(16)
+    image.encrypt(key, 'ctr')
+    with open('ctr_encrypted.ppm', 'wb') as f:
+            image.write_to_file(f)
+
+    with open('dk.ppm', 'rb') as f:
+        dk = PPMImage.load_from_file(f)
+    with open('se.ppm', 'rb') as f:
+        se = PPMImage.load_from_file(f)
+
+    for i in range(len(se.data)):
+        image.data[i] ^= dk.data[i] ^ se.data[i]
+
+    with open('ctr_encrypted_tampered.ppm', 'wb') as f:
+            image.write_to_file(f)
+    image.decrypt(key)
+    with open('ctr_decrypted.ppm', 'wb') as f:
+            image.write_to_file(f)
     return 
 
 def task3():
-    # --------- add your code here --------
+    with open('dk.ppm', 'rb') as f:
+        image = PPMImage.load_from_file(f)
+    key = secrets.token_bytes(16)
+    image.encrypt(key, 'gcm')
+    with open('gcm_encrypted.ppm', 'wb') as f:
+            image.write_to_file(f)
+
+    with open('dk.ppm', 'rb') as f:
+        dk = PPMImage.load_from_file(f)
+    with open('se.ppm', 'rb') as f:
+        se = PPMImage.load_from_file(f)
+
+    for i in range(len(se.data)):
+        image.data[i] ^= dk.data[i] ^ se.data[i]
+
+    with open('gcm_encrypted_tampered.ppm', 'wb') as f:
+            image.write_to_file(f)
+    image.decrypt(key)
+    with open('gcm_decrypted.ppm', 'wb') as f:
+            image.write_to_file(f)
     return 
 
 def task4():
-    # --------- add your code here --------
+    with open('security.ppm', 'rb') as f:
+        image = PPMImage.load_from_file(f)
+    key = secrets.token_bytes(16)
+    image.encrypt(key, 'gcm')
+    with open('gcm_encrypted.ppm', 'wb') as f:
+            image.write_to_file(f)
+    
+    image.height = 245
+
+    with open('gcm_encrypted_tampered.ppm', 'wb') as f:
+            image.write_to_file(f)
+    image.decrypt(key)
+    with open('gcm_decrypted.ppm', 'wb') as f:
+            image.write_to_file(f)
     return 
 
 def task5():
@@ -355,9 +409,9 @@ if __name__ == '__main__':
     # The following is executed if you run `python3 ppmcrypt.py`.
     task1()
 
-    # task2()
+    task2()
     # task3()
-    # task4()
+    task4()
     # task5()
 
-    final_encryption_and_decryption_test()
+    # final_encryption_and_decryption_test()
