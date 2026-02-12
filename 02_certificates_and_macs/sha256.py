@@ -23,8 +23,12 @@ def sha256(message: bytes) -> bytes:
     # initial value of the internal state
     internal_state = b'j\t\xe6g\xbbg\xae\x85<n\xf3r\xa5O\xf5:Q\x0eR\x7f\x9b\x05h\x8c\x1f\x83\xd9\xab[\xe0\xcd\x19'
 
-    # TODO implement this
-    pass
+    padded_message = message + build_padding(len(message))
+    chunks = split_chunks(padded_message)
+    for chunk in chunks:
+        internal_state = compress(chunk, internal_state)
+    
+    return internal_state
 
 
 def sha256_extend(given_hash: bytes, prefix_length: int, message_suffix: bytes) -> bytes:
@@ -42,8 +46,12 @@ def sha256_extend(given_hash: bytes, prefix_length: int, message_suffix: bytes) 
     assert len(given_hash) == 32
     assert prefix_length % 64 == 0
 
-    # TODO implement this
-    pass
+    padded_message = message_suffix + build_padding(prefix_length + len(message_suffix))
+    chunks = split_chunks(padded_message)
+    for chunk in chunks:
+        internal_state = compress(chunk, given_hash)
+    
+    return internal_state
 
 
 def padded_size(message_len: int) -> int:
