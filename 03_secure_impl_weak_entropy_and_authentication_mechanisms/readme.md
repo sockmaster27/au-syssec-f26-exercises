@@ -38,6 +38,8 @@ x \cdot \left(x^{y-1}\right), & \text{if } y \text{ is odd}.
 \end{cases}
 $$
 
+For reference, we include two versions of this idea (scanning the exponent from left to right, and from right to left).
+
 ### Tasks
 1. Reformulate the exponentiation algorithm to remove the branches based on key bits.
    <br>**Hint**: think of how to use a single bit as a selector between two values.
