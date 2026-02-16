@@ -2,7 +2,7 @@
 
 ## Exercise 1: Weak Entropy
 
-I have a big problem: When preparing this exercise last Monday, I encrypted a
+I have a big problem: When preparing this exercise last Friday, I encrypted a
 very important file.  Unfortunately, I forgot to save the key, and now I cannot
 access the data anymore.  Can you help me decrypt it?
 
