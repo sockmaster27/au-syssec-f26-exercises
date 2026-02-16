@@ -10,6 +10,7 @@ This is the command that I used:
 ```
 $ python encrypt.py plain.txt ciphertext.bin
 ```
+The `time()` function measures the number of seconds since January 1st, 1970 UTC.
 
 ## Exercise 2: Implement RSA without branches
 
