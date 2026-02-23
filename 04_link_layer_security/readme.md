@@ -48,7 +48,7 @@ You can find the link layer addresses using your **native** environment by using
 <details>
 <summary> GNU/Linux </summary>
 
-You can discover what your wireless interface is by running one of the below:
+You can discover what your wireless interface is by running one of the commands below:
 ```
 ip link
 ifconfig
